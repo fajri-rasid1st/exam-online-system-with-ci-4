@@ -1,12 +1,13 @@
 <?= $this->extend('layout/index'); ?>
 
 <?= $this->section('page-content'); ?>
+<div class="flash-data" data-flash='<?= session()->getFlashData("error"); ?>' data-title="Pendaftaran Gagal" data-icon="error"></div>
 <div class="container-fluid">
     <!-- Page Heading -->
     <h1 class="h2 mb-4 text-gray-700">Edit Profile</h1>
     <div class="row">
         <div class="col-md-12">
-            <div class="card border-left-secondary bg-light mb-4 p-3">
+            <div class="card shadow border-left-secondary bg-light mb-4 p-3">
                 <form action="<?= base_url('user/attempt_update'); ?>" method="POST" enctype="multipart/form-data">
 
                     <?= csrf_field(); ?>
@@ -15,14 +16,14 @@
                         <div class="col-md-4 d-flex justify-content-center">
                             <div class="form-upload">
                                 <div class="preview text-center mb-2">
-                                    <img src="<?= base_url('/img/profile/' . $user["profile_pict"]); ?>" id="preview-img" class="card-img rounded-circle shadow m-auto p-1" alt="<?= $user["profile_pict"]; ?>">
+                                    <img src="<?= base_url('/img/profile/' . $user["profile_pict"]); ?>" id="preview-img" class="card-img rounded-circle shadow m-auto p-1" data-action="zoom">
                                 </div>
 
                                 <div class="text-success mb-2">
                                     <small><sup>*</sup>recommended image ratio 1:1 (square)</small>
                                 </div>
 
-                                <input type="file" id="profile_pict" name="profile_pict" class="<?= $validation->hasError('profile_pict') ? 'is-invalid' : ''; ?>" onchange="showPreview();">
+                                <input type="file" id="profile_pict" name="profile_pict" class="<?= $validation->hasError('profile_pict') ? 'is-invalid' : ''; ?>" onchange="showPreviewProfilePict();">
 
                                 <label for="profile_pict" class="btn btn-default <?= $validation->hasError('profile_pict') ? 'is-invalid' : ''; ?>">
                                     <i class="fas fa-cloud-upload-alt mr-1"></i>

@@ -1,6 +1,14 @@
-// -------------------- Admin Side --------------------
-
 jQuery(function () {
+	// class name of input at user form
+	const inputClassName = [
+		".invalid-username",
+		".invalid-email",
+		".invalid-fullname",
+		".invalid-phone_number",
+		".invalid-gender",
+		".invalid-address",
+	];
+
 	// Show Users Table (admin)
 	$("#users-table").DataTable({
 		serverSide: true,
@@ -44,12 +52,9 @@ jQuery(function () {
 				$("#address").val(data.address);
 
 				// change invalid feedback text
-				$(".invalid-username").text("");
-				$(".invalid-email").text("");
-				$(".invalid-fullname").text("");
-				$(".invalid-phone_number").text("");
-				$(".invalid-gender").text("");
-				$(".invalid-address").text("");
+				inputClassName.forEach((element) => {
+					$(element).text("");
+				});
 
 				// show modal
 				$("#editModal").modal("show");
@@ -81,13 +86,15 @@ jQuery(function () {
 				$("#admin-user-submit").attr("disabled", false);
 
 				if (data.error == "yes") {
+					let i = 0;
 					// change invalid feedback text
-					$(".invalid-username").text(data.invalidUsername);
-					$(".invalid-email").text(data.invalidEmail);
-					$(".invalid-fullname").text(data.invalidFullname);
-					$(".invalid-phone_number").text(data.invalidPhonenumber);
-					$(".invalid-gender").text(data.invalidGender);
-					$(".invalid-address").text(data.invalidAddress);
+					for (const key in data) {
+						$(inputClassName[i++]).text(data[key]);
+
+						if (i == 6) {
+							break;
+						}
+					}
 
 					// change color border input to red if validation has error
 					if (data.invalidUsername == "") {
@@ -167,7 +174,6 @@ jQuery(function () {
 					$("#users-table").DataTable().ajax.reload();
 
 					// reset invalid input border color
-					$(".invalid-email").prev("input").removeClass("is-invalid");
 					$(".invalid-username")
 						.prev("input")
 						.removeClass("is-invalid");
@@ -183,6 +189,7 @@ jQuery(function () {
 					$(".invalid-address")
 						.prev("input")
 						.removeClass("is-invalid");
+					$(".invalid-email").prev("input").removeClass("is-invalid");
 				}
 			},
 			error: function (err) {
@@ -206,7 +213,11 @@ jQuery(function () {
 	$(document).on("click", "#btn-delete", function () {
 		Swal.fire({
 			title: "Delete This User?",
-			text: "Data that you delete cannot be restored.",
+			html: `
+				<span class="text-danger">
+					Data that you delete cannot be restored.
+				</span>
+			`,
 			icon: "question",
 			showCancelButton: true,
 			confirmButtonColor: "#5A5C69",

@@ -11,7 +11,7 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-striped table-borderless" id="users-table" style="width: 100%;">
+                        <table class="table table-striped table-bordered" id="users-table" style="width: 100%;">
                             <thead class="bg-dark" style="color: #f0f5f9;">
                                 <tr>
                                     <th scope="col" class="table-col">ID</th>

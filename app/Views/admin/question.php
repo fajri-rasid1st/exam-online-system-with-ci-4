@@ -1,10 +1,12 @@
 <?= $this->extend('layout/index'); ?>
 
 <?= $this->section('page-content'); ?>
+<div class="flash-data" data-flash='<?= session()->getFlashData("message"); ?>' data-title="Upload File Success" data-icon="success"></div>
+<div class="flash-data" data-flash='<?= session()->getFlashData("error"); ?>' data-title="Unable To Upload File" data-icon="error"></div>
 <div class="container-fluid">
     <!-- breadcrumb nav -->
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
+        <ol class="breadcrumb mb-4">
             <li class="breadcrumb-item"><a href="<?= base_url('exam'); ?>">Exam List</a></li>
             <li class="breadcrumb-item active" aria-current="page">Questions</li>
         </ol>
@@ -12,19 +14,35 @@
     <h1 class="h2 mb-4 text-gray-700">
         Question List
     </h1>
+    <div class="alert alert-danger mb-4">
+        <small class="d-block">
+            <sup>*</sup> Untuk menambahkan gambar pada pertanyaan, silahkan klik icon 'upload'
+            lalu pilih gambar (jpg, jpeg, atau png). Setelah itu, klik tombol 'upload'.
+        </small>
+        <small class="d-block">
+            <sup>*</sup> File gambar hanya bisa diisi satu per satu.
+        </small>
+    </div>
     <div class="row">
         <div class="col-lg-12">
             <div class="card shadow mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center py-3">
                     <h5 class="table-title m-0"></h5>
-                    <button type="button" class="btn btn-outline btn-outline-primary" id="create-question">
-                        <i class="fas fa-plus mr-1"></i>
-                        Create new question
-                    </button>
+                    <div class="question-action">
+                        <button type="button" class="btn btn-primary" id="create-question" <?= $disable_btn; ?>>
+                            <i class="fas fa-plus mr-1"></i>
+                            Create Question
+                        </button>
+                        <span class="px-1"></span>
+                        <button type="button" class="btn btn-danger" id="lock-exam" <?= $disable_btn; ?>>
+                            <i class="fas fa-lock mr-1"></i>
+                            <?= $disable_btn ? "Exam Locked" : "Lock Exam"; ?>
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-striped table-borderless" id="questions-table" style="width: 100%;">
+                        <table class="table table-striped table-bordered" id="questions-table" style="width: 100%;">
                             <thead class="bg-dark" style="color: #f0f5f9;">
                                 <tr>
                                     <th scope="col" class="table-col">ID</th>
@@ -43,8 +61,8 @@
     </div>
     <!-- Question Modal-->
     <div class="modal fade" id="questionModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="questionModalLabel" aria-hidden="true">
-        <form method="POST" id="question-form" enctype="multipart/form-data">
-            <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+        <form method="POST" id="question-form">
+            <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
                 <div class="modal-content shadow-lg">
                     <div class="modal-header">
                         <h5 class="modal-title" id="questionModalLabel"></h5>
@@ -54,7 +72,7 @@
                         <div class="container-fluid">
                             <div class="form-group mb-3 mt-3">
                                 <label for="question-title">Question</label>
-                                <textarea form="question-form" name="question-title" class="form-control form-control-user" id="question-title" placeholder="Type question here" spellcheck="false" autocomplete="off" rows="6"></textarea>
+                                <textarea form="question-form" name="question-title" class="form-control form-control-user" id="question-title" placeholder="Type question here" spellcheck="false" autocomplete="off" rows="5"></textarea>
                                 <small class="invalid-question text-danger mb-0"></small>
                             </div>
 

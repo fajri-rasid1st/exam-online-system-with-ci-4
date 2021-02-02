@@ -78,23 +78,24 @@ class ExamsModel extends Model
             $editable = $this->isExamStarted($row["id"]) ? 'disable' : null;
 
             return '
-                <a href="' . base_url('exam/' . $row["id"]) . '" role="button" class="btn btn-sm btn-info btn-icon-action" title="detail">
+                <a href="' . base_url('exam/' . $row["id"]) . '" role="button" class="btn btn-sm btn-info btn-icon-action mb-1" title="detail">
                     <span class="icon text-white-50">
                         <i class="fas fa-info mx-1"></i>
                     </span>
                 </a>
                 &nbsp;
-                <button type="button" class="btn btn-sm btn-warning btn-icon-action" id="btn-exam-edit" data-id="' . $row["id"] . '" title="edit" data-editable="' . $editable . '">
+                <button type="button" class="btn btn-sm btn-warning btn-icon-action mb-1" id="btn-exam-edit" data-id="' . $row["id"] . '" title="edit" data-editable="' . $editable . '">
                     <span class="icon text-white-50">
                         <i class="fas fa-edit"></i>
                     </span>
                 </button>
                 &nbsp;
-                <button type="button" class="btn btn-sm btn-danger btn-icon-action" id="btn-exam-delete" data-id="' . $row["id"] . '" title="delete" data-editable="' . $editable . '">
+                <button type="button" class="btn btn-sm btn-danger btn-icon-action mb-1" id="btn-exam-delete" data-id="' . $row["id"] . '" title="delete" data-editable="' . $editable . '">
                     <span class="icon text-white-50">
                         <i class="fas fa-trash mx-1"></i>
                     </span>
-                </button>';
+                </button>
+                ';
         };
 
         return $button;
@@ -108,40 +109,48 @@ class ExamsModel extends Model
         $current_datetime = date("Y-m-d H:i:s", time());
         $exam_datetime = $this->find($exam_id)["implement_date"];
 
-        if ($exam_datetime < $current_datetime) {
-            return true;
+        return $current_datetime > $exam_datetime  ? true : false;
+    }
+
+    // function to change exam status
+    public function changeExamStatus($exam)
+    {
+        date_default_timezone_set("Asia/Makassar");
+
+        $this->questionsModel = new QuestionsModel();
+
+        $current_question = $this->questionsModel
+            ->where(['exam_id' => $exam['id']])
+            ->countAllResults();
+
+        $total_question = $exam['total_question'];
+
+        if ($this->isExamStarted($exam['id'])) {
+            $current_datetime = date("Y-m-d H:i:s", time());
+            $exam_datetime = $exam['implement_date'];
+
+            $delta_datetime = strtotime($current_datetime) - strtotime($exam_datetime);
+            $exam_duration = ($exam['duration'] + 0) * 60;
+
+            $data['status'] = $delta_datetime < $exam_duration ? $this->listStatus()[2] : $this->listStatus()[3];
+
+            $this->update($exam['id'], $data);
         }
 
-        return false;
+        return "Filled with " . $current_question . " of " . $total_question;
     }
 
     // function to return question button at exam table
     public function questionButton()
     {
         $button = function ($row) {
-            // instance exam model class
-            $this->questionsModel = new QuestionsModel();
-            // get current question of exam
-            $current_question = $this->questionsModel->where(['exam_id' => $row['id']])->countAllResults();
-            // get total question of exam
-            $total_question = $row['total_question'];
-
-            if ($current_question < $total_question) {
-                // get value updated exam status
-                $data['status'] = $this->listStatus()[0];
-                // update exam status
-                $this->update($row['id'], $data);
-            } else {
-                // get value updated exam status
-                $data['status'] = $this->listStatus()[1];
-                // update exam status
-                $this->update($row['id'], $data);
-            }
+            $btn_text = $this->changeExamStatus($row);
 
             return '
-                <a href="' . base_url('question?code=' . $row['code']) . '" class="btn btn-sm btn-primary">
-                    Filled with ' . $current_question . ' of ' . $total_question . '
-                </a>';
+                <a href="' . base_url('question?page=admin_exam_view&code=' . $row['code']) . '" class="btn btn-sm btn-primary">
+                    ' . $btn_text . '
+                </a>
+                ';
         };
 
         return $button;

@@ -8,14 +8,14 @@
             <div class="card shadow mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center py-3">
                     <h5 class="table-title m-0">Exams Table</h5>
-                    <button type="button" class="btn btn-outline btn-outline-primary" id="create-exam">
+                    <button type="button" class="btn btn-primary" id="create-exam">
                         <i class="fas fa-plus mr-1"></i>
-                        Create new exam
+                        Create Exam
                     </button>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-striped table-borderless" id="exams-table" style="width: 100%;">
+                        <table class="table table-striped table-bordered" id="exams-table" style="width: 100%;">
                             <thead class="bg-dark" style="color: #f0f5f9;">
                                 <tr>
                                     <th scope="col" class="table-col">ID</th>

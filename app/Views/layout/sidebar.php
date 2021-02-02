@@ -1,4 +1,4 @@
-<ul class="navbar-nav bg-dark sidebar sidebar-dark accordion" id="accordionSidebar">
+<ul class="navbar-nav bg-dark sidebar sidebar-dark accordion toggled" id="accordionSidebar">
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= base_url(); ?>">
         <div class="sidebar-brand-icon">
@@ -75,6 +75,22 @@
         <!-- Nav Item - Examinations -->
         <li class="nav-item">
             <a class="nav-link" href="<?= base_url('exam'); ?>">
+                <i class="fas fa-fw fa-table"></i>
+                <span>Exam List</span>
+            </a>
+        </li>
+    <?php endif; ?>
+
+    <?php if (in_groups('user')) : ?>
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+        <!-- Heading -->
+        <div class="sidebar-heading">
+            Manage Exam
+        </div>
+        <!-- Nav Item - Examinations -->
+        <li class="nav-item">
+            <a class="nav-link" href="<?= base_url('exam_list'); ?>">
                 <i class="fas fa-fw fa-table"></i>
                 <span>Exam List</span>
             </a>

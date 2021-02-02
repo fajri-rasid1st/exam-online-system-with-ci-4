@@ -15,11 +15,15 @@
     <link href="<?= base_url(); ?>/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <!-- DateTimePicker -->
     <link rel="stylesheet" href="<?= base_url(); ?>/css/jquery.datetimepicker.min.css">
+    <!-- TimeCircle -->
+    <link rel="stylesheet" href="<?= base_url(); ?>/css/TimeCircles.css">
+    <!-- Tap To Zoom Image -->
+    <link rel="stylesheet" href="<?= base_url(); ?>/css/zoom.css">
     <!-- External CSS -->
     <link rel="stylesheet" href="<?= base_url(); ?>/css/main.css">
 </head>
 
-<body id="page-top">
+<body id="page-top" class="sidebar-toggled">
     <!-- Page Wrapper -->
     <div id="wrapper">
         <!-- Sidebar -->
@@ -41,7 +45,7 @@
             <!-- End of Main Content -->
 
             <!-- Footer -->
-            <footer class="sticky-footer bg-white">
+            <footer class="sticky-footer bg-white footer-page">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
                         <span>Copyright &copy; fajri-rasid1st <?= date('Y'); ?></span>
@@ -62,11 +66,11 @@
     </a>
 
     <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Are you sure you want to log out?</h5>
+                    <h5 class="modal-title" id="logoutModalLabel">Are you sure you want to log out?</h5>
                 </div>
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
@@ -79,17 +83,21 @@
     <script src="<?= base_url(); ?>/vendor/jquery/jquery.min.js"></script>
     <script src="<?= base_url(); ?>/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="<?= base_url(); ?>/vendor/jquery-easing/jquery.easing.min.js"></script>
-    <script src="<?= base_url(); ?>/js/sb-admin-2.min.js"></script>
     <script src="<?= base_url(); ?>/vendor/datatables/jquery.dataTables.min.js"></script>
     <script src="<?= base_url(); ?>/vendor/datatables/dataTables.bootstrap4.min.js"></script>
-    <script src="<?= base_url(); ?>/js/jquery.datetimepicker.full.min.js"></script>
+    <script src="<?= base_url(); ?>/js/sb-admin-2.min.js"></script>
+    <script src="<?= base_url(); ?>/js/zoom.js"></script>
+    <script src="<?= base_url(); ?>/js/TimeCircles.js"></script>
     <script src="<?= base_url(); ?>/js/sweetalert2.all.min.js"></script>
+    <script src="<?= base_url(); ?>/js/jquery.datetimepicker.full.min.js"></script>
     <script src="<?= base_url(); ?>/js/user_management.js"></script>
     <script src="<?= base_url(); ?>/js/exam_management.js"></script>
     <script src="<?= base_url(); ?>/js/question_management.js"></script>
     <script src="<?= base_url(); ?>/js/utilities.js"></script>
+    <script src="<?= base_url(); ?>/js/script.js"></script>
     <script>
         const code = "<?= isset($_GET['code']) ? $_GET['code'] : null ?>";
+        const page = "<?= isset($_GET['page']) ? $_GET['page'] : null ?>";
     </script>
 </body>
 

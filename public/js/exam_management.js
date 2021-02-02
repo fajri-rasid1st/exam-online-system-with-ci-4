@@ -1,7 +1,22 @@
-// Set Base URL
-const baseURL = "http://localhost:8080";
+// set DateTimePicker
+const date = new Date();
 
-// -------------------- Admin Side --------------------
+date.setDate(date.getDate());
+
+jQuery.datetimepicker.setLocale("id");
+
+$("#schedule").datetimepicker({
+	startDate: date,
+	format: "Y-m-d H:i:s",
+	lang: "id",
+	step: 15,
+	autoClose: true,
+	onShow: function (_) {
+		this.setOptions({
+			minDate: 0,
+		});
+	},
+});
 
 jQuery(function () {
 	// Show Exams Table
@@ -43,6 +58,12 @@ jQuery(function () {
 		// change invalid feedback text
 		$(".invalid-title").text("");
 		$(".invalid-schedule").text("");
+		// reset slider value
+		$(".duration-value").text("5");
+		$(".question-value").text("5");
+		$(".right-answer-value").text("0");
+		$(".wrong-answer-value").text("-10");
+		$(".empty-answer-value").text("-10");
 		// set value input named exam-id
 		$("#exam-id").val(null);
 	});
@@ -198,8 +219,12 @@ jQuery(function () {
 		} else {
 			Swal.fire({
 				title: "Delete This Exam?",
-				text:
-					"There may be question(s) that have been made in this exam. If this exam is deleted, the question(s) is also deleted.",
+				html: `
+					<span class="text-danger">
+						There may be question(s) that have been made in this exam.
+						If this exam is deleted, the question(s) is also deleted.
+					</span>
+				`,
 				icon: "question",
 				showCancelButton: true,
 				confirmButtonColor: "#5A5C69",

@@ -32,18 +32,15 @@ $routes->setAutoRoute(true);
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 
-// User Management Routes
+// Home
 $routes->get('/', 'Home::index', ['filter' => 'role:admin,user']);
 
+// Admin Side
 $routes->get('/admin', 'Admin::index', ['filter' => 'role:admin']);
 $routes->get('/admin/index', 'Admin::index', ['filter' => 'role:admin']);
 
 $routes->get('/admin/(:num)', 'Admin::detail/$1', ['filter' => 'role:admin']);
 
-$routes->get('/user/(:num)', 'User::update/$1', ['filter' => 'role:admin,user']);
-$routes->get('/update_password/(:num)', 'User::update_password/$1', ['filter' => 'role:admin,user']);
-
-// Exam Management Routes (Admin Side)
 $routes->get('/exam', 'Admin::exam', ['filter' => 'role:admin']);
 $routes->get('/admin/exam', 'Admin::exam', ['filter' => 'role:admin']);
 
@@ -52,6 +49,23 @@ $routes->get('/admin/exam/(:num)', 'Admin::exam_detail/$1', ['filter' => 'role:a
 
 $routes->get('/question', 'Admin::question', ['filter' => 'role:admin']);
 $routes->get('/admin/question', 'Admin::question', ['filter' => 'role:admin']);
+
+// User Side
+$routes->get('/user/(:num)', 'User::update/$1', ['filter' => 'role:admin,user']);
+
+$routes->get('/update_password/(:num)', 'User::update_password/$1', ['filter' => 'role:admin,user']);
+
+$routes->get('/exam_detail/(:num)/(:any)', 'User::exam_detail/$1/$2', ['filter' => 'role:admin,user']);
+$routes->get('/user/exam_detail/(:num)/(:any)', 'User::exam_detail/$1/$2', ['filter' => 'role:admin,user']);
+
+$routes->get('/exam_list', 'User::exam_list', ['filter' => 'role:user']);
+$routes->get('/user/exam_list', 'User::exam_list', ['filter' => 'role:user']);
+
+$routes->get('/exam_view/(:num)', 'User::exam_view/$1', ['filter' => 'role:user']);
+$routes->get('/user/exam_view/(:num)', 'User::exam_view/$1', ['filter' => 'role:user']);
+
+$routes->get('/exam_result/(:num)', 'User::exam_result/$1', ['filter' => 'role:user']);
+$routes->get('/user/exam_result/(:num)', 'User::exam_result/$1', ['filter' => 'role:user']);
 
 
 

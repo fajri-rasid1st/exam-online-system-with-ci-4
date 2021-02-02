@@ -18,11 +18,11 @@ class QuestionsModel extends Model
         'image',
     ];
 
-    // function to return options of question at question_table
-    public function listOption()
+    // function to return enum field at question_table
+    public function listQuestionEnum($field)
     {
-        // query for show column where field is 'options'
-        $query = $this->db->query("SHOW COLUMNS FROM question_table WHERE FIELD = 'options'");
+        // query for show column according to field at parameter
+        $query = $this->db->query("SHOW COLUMNS FROM question_table WHERE FIELD = '" . $field . "'");
         // get type
         $type = $query->getRow()->Type;
         // perform a regular expression match

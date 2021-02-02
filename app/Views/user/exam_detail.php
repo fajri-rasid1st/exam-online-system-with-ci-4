@@ -1,13 +1,3 @@
-<?php if ($exam['status'] == $exam_status[0]) : ?>
-    <?php $color = 'secondary'; ?>
-<?php elseif ($exam['status'] == $exam_status[1]) : ?>
-    <?php $color = 'primary'; ?>
-<?php elseif ($exam['status'] == $exam_status[2]) : ?>
-    <?php $color = 'success'; ?>
-<?php else : ?>
-    <?php $color = 'dark'; ?>
-<?php endif; ?>
-
 <?= $this->extend('layout/index'); ?>
 
 <?= $this->section('page-content'); ?>
@@ -15,11 +5,11 @@
     <!-- breadcrumb nav -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb mb-4">
-            <li class="breadcrumb-item"><a href="<?= base_url('exam'); ?>">Exam List</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Exam Detail</li>
+            <li class="breadcrumb-item"><a href="<?= base_url(); ?>">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><?= $exam['title']; ?></li>
         </ol>
     </nav>
-    <h1 class="h2 mb-4 text-gray-700">Exam Detail</h1>
+    <h1 class="h2 mb-4 text-gray-700"><?= $exam['title']; ?></h1>
     <div class="row">
         <div class="col-lg-12">
             <div class="card shadow bg-light mb-4 p-2 border-left-<?= $color; ?>">
@@ -62,8 +52,27 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="col-md-4 text-center">
-                        <i class="fas fa-clipboard-list rotate-15 text-gray-300" style="font-size: 14rem;"></i>
+                    <div class="col-md-4 my-5 text-center">
+                        <?php if (in_groups("user")) : ?>
+                            <div class="exam-icon mb-5">
+                                <i class="fas fa-clipboard-list rotate-15 text-gray-300" style="font-size: 13rem;"></i>
+                            </div>
+                            <div class="exam-action">
+                                <?php if ($enrolled) : ?>
+                                    <button type="button" id="btn-enroll" class="btn btn-lg btn-<?= $color; ?>" disabled>
+                                        Anda Sudah Terdaftar!
+                                    </button>
+                                <?php else : ?>
+                                    <button type="button" id="btn-enroll" class="btn btn-lg btn-<?= $color; ?>" data-userid="<?= user()->id; ?>" data-examid="<?= $exam['id']; ?>">
+                                        Daftar Sekarang!
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        <?php else : ?>
+                            <div class="exam-icon">
+                                <i class="fas fa-clipboard-list rotate-15 text-gray-300" style="font-size: 14rem;"></i>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

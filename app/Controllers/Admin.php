@@ -34,6 +34,8 @@ class Admin extends BaseController
     // function to fetch all users from database
     public function fetch_all_users()
     {
+        if (!in_groups('admin')) return redirect()->back();
+
         $this->data_table->setTable($this->usersModel->noticeTable())
             ->setDefaultOrder('id', 'DESC')
             ->setSearch(['fullname', 'username', 'email'])
@@ -55,7 +57,7 @@ class Admin extends BaseController
     public function fetch_single_user()
     {
         if ($this->request->getVar('id')) {
-            $user_data = $this->usersModel->where(['id' => $this->request->getVar('id')])->first();
+            $user_data = $this->usersModel->find($this->request->getVar('id'));
 
             echo json_encode($user_data);
         }
@@ -72,9 +74,7 @@ class Admin extends BaseController
     // function for seeing user detail
     public function detail($id = 0)
     {
-        if (!in_groups('admin') || !is_numeric($id)) {
-            return redirect()->back();
-        }
+        if (!in_groups('admin') || !is_numeric($id)) return redirect()->back();
 
         $query = $this->db->query(
             'SELECT email,
@@ -104,9 +104,7 @@ class Admin extends BaseController
     // function to delete user
     public function delete()
     {
-        if (!in_groups('admin')) {
-            return redirect()->back();
-        }
+        if (!in_groups('admin')) return redirect()->back();
 
         if ($this->request->getVar('id')) {
             // user id
@@ -127,9 +125,7 @@ class Admin extends BaseController
     // function to update user
     public function update()
     {
-        if (!in_groups('admin')) {
-            return redirect()->back();
-        }
+        if (!in_groups('admin')) return redirect()->back();
 
         if ($this->request->getVar('edit')) {
             helper(['form', 'url']);
@@ -143,7 +139,7 @@ class Admin extends BaseController
             $success = 'no';
             $error = 'no';
 
-            $user_data = $this->usersModel->where(['id' => $this->request->getVar("hidden-id")])->first();
+            $user_data = $this->usersModel->find($this->request->getVar("hidden-id"));
 
             // cek username user
             if ($user_data["username"] == $this->request->getVar("username")) {
@@ -217,6 +213,8 @@ class Admin extends BaseController
     // function to fetch all exam from database
     public function fetch_all_exams()
     {
+        if (!in_groups('admin')) return redirect()->back();
+
         $this->data_table->setTable($this->examsModel->noticeTable())
             ->setDefaultOrder('id', 'DESC')
             ->setSearch(['title', 'implement_date', 'duration', 'total_question', 'status'])
@@ -239,7 +237,7 @@ class Admin extends BaseController
     public function fetch_single_exam()
     {
         if ($this->request->getVar('id')) {
-            $exam_data = $this->examsModel->where(['id' => $this->request->getVar('id')])->first();
+            $exam_data = $this->examsModel->find($this->request->getVar('id'));
 
             echo json_encode($exam_data);
         }
@@ -248,10 +246,6 @@ class Admin extends BaseController
     // function to return exam view (table exam)
     public function exam()
     {
-        if (!in_groups('admin')) {
-            return redirect()->back();
-        }
-
         $data['title'] = 'Manage Exams';
 
         return view('admin/exam', $data);
@@ -260,9 +254,7 @@ class Admin extends BaseController
     // function for seeing exam detail
     public function exam_detail($id = 0)
     {
-        if (!in_groups('admin') || !is_numeric($id)) {
-            return redirect()->back();
-        }
+        if (!in_groups('admin') || !is_numeric($id)) return redirect()->back();
 
         $exam = $this->examsModel->find($id);
         $exam_status = $this->examsModel->listStatus();
@@ -279,15 +271,25 @@ class Admin extends BaseController
     // function to delete exam
     public function exam_delete()
     {
-        if (!in_groups('admin')) {
-            return redirect()->back();
-        }
+        if (!in_groups('admin')) return redirect()->back();
 
-        if ($this->request->getVar('id')) {
+        $exam_id = $this->request->getVar('id');
+
+        if ($exam_id) {
+            // get all questions from this exam
+            $questions = $this->questionsModel
+                ->where(["exam_id" => $exam_id])
+                ->findAll();
+            // delete files image question
+            foreach ($questions as $question) {
+                if ($question["image"]) {
+                    unlink('img/exam/' . $question["image"]);
+                }
+            }
             // delete exam data
-            $this->examsModel->delete($this->request->getVar('id'));
+            $this->examsModel->delete($exam_id);
             // drop exam view
-            $this->db->query('DROP VIEW questions_for_exam_' . $this->request->getVar('id'));
+            $this->db->query('DROP VIEW questions_for_exam_' . $exam_id);
             // set flash message
             echo 'Exam data has been deleted.';
         }
@@ -296,9 +298,7 @@ class Admin extends BaseController
     // function for create/update exam
     public function exam_action()
     {
-        if (!in_groups('admin')) {
-            return redirect()->back();
-        }
+        if (!in_groups('admin')) return redirect()->back();
 
         if ($this->request->getVar('action')) {
             helper(['form', 'url']);
@@ -312,7 +312,7 @@ class Admin extends BaseController
 
             if ($this->request->getVar("exam-id")) {
                 // this is current exam edited
-                $exam_data = $this->examsModel->where(['id' => $this->request->getVar("exam-id")])->first();
+                $exam_data = $this->examsModel->find($this->request->getVar("exam-id"));
                 // cek title exam
                 if ($exam_data["title"] == $this->request->getVar("title")) {
                     $title_rules = 'required|min_length[3]|max_length[255]';
@@ -400,6 +400,18 @@ class Admin extends BaseController
         }
     }
 
+    // function to lock exam
+    public function lock_exam()
+    {
+        if ($this->request->getVar("action") == "lock_exam") {
+            $data["status"] = $this->examsModel->listStatus()[1];
+
+            $this->examsModel->update($this->request->getVar("id"), $data);
+        }
+
+        echo "Exam berhasil dikunci.";
+    }
+
     // -------------------------------------------------------------
 
     // function to send current exam from server to admin
@@ -417,30 +429,28 @@ class Admin extends BaseController
     {
         if ($this->request->getVar('id')) {
             $exam_id = $this->request->getVar('id');
+
+            $this->data_table->setTable($this->questionsExamModel->noticeTable($exam_id))
+                ->setDefaultOrder('id', 'DESC')
+                ->setSearch(['title', 'options', 'types'])
+                ->setOrder(['id', 'title', 'options', 'types'])
+                ->setOutput([
+                    $this->questionsExamModel->rowResult('id'),
+                    $this->questionsExamModel->rowResult('title'),
+                    $this->questionsExamModel->rowResult('options'),
+                    $this->questionsExamModel->rowResult('types'),
+                    $this->questionsExamModel->rowResult('image'),
+                    $this->questionsExamModel->actionButton(),
+                ]);
+
+            return $this->data_table->getDatatable();
         }
-
-        $this->data_table->setTable($this->questionsExamModel->noticeTable($exam_id))
-            ->setDefaultOrder('id', 'DESC')
-            ->setSearch(['title', 'options', 'types'])
-            ->setOrder(['id', 'title', 'options', 'types'])
-            ->setOutput([
-                $this->questionsExamModel->rowResult('id'),
-                $this->questionsExamModel->rowResult('title'),
-                $this->questionsExamModel->rowResult('options'),
-                $this->questionsExamModel->rowResult('types'),
-                $this->questionsExamModel->rowResult('image'),
-                $this->questionsExamModel->actionButton(),
-            ]);
-
-        return $this->data_table->getDatatable();
     }
 
     public function fetch_single_question()
     {
         if ($this->request->getVar('id')) {
-            $question_data = $this->questionsModel
-                ->where(['id' => $this->request->getVar('id')])
-                ->first();
+            $question_data = $this->questionsModel->find($this->request->getVar('id'));
 
             $option_data = $this->optionsModel
                 ->where(['question_id' => $this->request->getVar('id')])
@@ -455,7 +465,7 @@ class Admin extends BaseController
 
             $i = 0;
 
-            $options = $this->questionsModel->listOption();
+            $options = $this->questionsModel->listQuestionEnum('options');
 
             foreach ($options as $option) {
                 $output['option' . $option] = $option_data[$i++]['title'];
@@ -465,15 +475,25 @@ class Admin extends BaseController
         }
     }
 
-
     // function to return question view (table question)
     public function question()
     {
-        if (!in_groups('admin')) {
-            return redirect()->back();
+        $disable_btn = null;
+
+        if ($this->request->getGet('code')) {
+            $exam = $this->examsModel
+                ->where(['code' => $this->request->getGet('code')])
+                ->first();
+
+            if ($exam['status'] == $this->examsModel->listStatus()[1]) {
+                $disable_btn = 'disabled';
+            }
         }
 
-        $data['title'] = 'Manage Questions';
+        $data = [
+            'title'       => 'Manage Questions',
+            'disable_btn' => $disable_btn,
+        ];
 
         return view('admin/question', $data);
     }
@@ -483,33 +503,39 @@ class Admin extends BaseController
     {
         if ($this->request->getVar('id')) {
             $exam_id = $this->request->getVar('id');
-        }
 
-        $current_question = $this->questionsModel->where(['exam_id' => $exam_id])->countAllResults();
+            $exam = $this->examsModel->find($exam_id);
 
-        $total_question = $this->examsModel->find($exam_id)["total_question"];
+            $current_question = $this->questionsModel
+                ->where(['exam_id' => $exam_id])
+                ->countAllResults();
 
-        if ($current_question < $total_question) {
-            // return true
-            echo json_encode(true);
-        } else {
-            // return false
-            echo json_encode(false);
+
+            if (
+                $current_question < $exam["total_question"] &&
+                !$this->examsModel->isExamStarted($exam_id)
+            ) {
+                // return true
+                echo json_encode(true);
+            } else {
+                // change exam status first
+                $this->examsModel->changeExamStatus($exam);
+                // return false
+                echo json_encode(false);
+            }
         }
     }
 
     // function to delete question
     public function question_delete()
     {
-        if (!in_groups('admin')) {
-            return redirect()->back();
-        }
+        if (!in_groups('admin')) return redirect()->back();
 
         if ($this->request->getVar('id')) {
             // get question id
             $question_id = $this->request->getVar('id');
             // get list option at question_table
-            $options = $this->questionsModel->listOption();
+            $options = $this->questionsModel->listQuestionEnum('options');
             // delete each options data at option_table
             foreach ($options as $option_delete) {
                 // get option id 
@@ -520,6 +546,12 @@ class Admin extends BaseController
                 // delete option data
                 $this->optionsModel->delete($option_id);
             }
+            // find question image
+            $image = $this->questionsModel->find($question_id)["image"];
+            // delete question image
+            if ($image) {
+                unlink('img/exam/' . $image);
+            }
             // delete question data
             $this->questionsModel->delete($question_id);
             // set flash message
@@ -527,12 +559,10 @@ class Admin extends BaseController
         }
     }
 
-    // function for create/update question
+    // function to create/update question
     public function question_action()
     {
-        if (!in_groups('admin')) {
-            return redirect()->back();
-        }
+        if (!in_groups('admin')) return redirect()->back();
 
         if ($this->request->getVar('action')) {
             helper(['form', 'url']);
@@ -574,7 +604,7 @@ class Admin extends BaseController
                 $success = 'yes';
 
                 // get list option at question_table
-                $options = $this->questionsModel->listOption();
+                $options = $this->questionsModel->listQuestionEnum('options');
 
                 if ($this->request->getVar('action') == 'create') {
                     // insert question into question_table
@@ -649,5 +679,54 @@ class Admin extends BaseController
 
             echo json_encode($output);
         }
+    }
+
+    // function to delete question image
+    public function delete_question_image()
+    {
+        if (!in_groups('admin')) return redirect()->back();
+
+        $question = $this->questionsModel->find($this->request->getVar('id'));
+
+        $this->questionsModel->save([
+            'id'    => $this->request->getVar('id'),
+            'image' => null,
+        ]);
+
+        unlink('img/exam/' . $question['image']);
+
+        echo "File image has been deleted.";
+    }
+
+    // function to upload question image
+    public function attempt_question_image($question_id = 0)
+    {
+        if (!in_groups('admin')) return redirect()->back();
+
+        $question = $this->questionsModel->find($question_id);
+
+        if ($this->examsModel->isExamStarted($question["exam_id"])) {
+            return redirect()->back()->with("error", "The exam of this question has been completed or is on progress.");
+        }
+
+        if (!$this->validate([
+            'question_image' => 'uploaded[question_image]|max_size[question_image,2000]|is_image[question_image]|mime_in[question_image,image/jpg,image/jpeg,image/png]'
+        ])) {
+            return redirect()->back()->with("error", "Unknown error, Please try again.");
+        }
+
+        // uploaded file
+        $file_img = $this->request->getFile("question_image");
+        // generate a random name
+        $file_name = $file_img->getRandomName();
+        // move file to img folder
+        $file_img->move('img/exam', $file_name);
+
+        $this->questionsModel->save([
+            'id'    => $question_id,
+            'image' => $file_name,
+        ]);
+
+        return redirect()->back()->with("message", "File image has been uploaded.");
     }
 }

@@ -1,17 +1,37 @@
-// -------------------- Admin Side --------------------
-
 jQuery(function () {
+	// class name of input at question form
+	const inputClassName = [
+		".invalid-question",
+		".invalid-option-a",
+		".invalid-option-b",
+		".invalid-option-c",
+		".invalid-option-d",
+		".invalid-option-e",
+		".invalid-answer",
+		".invalid-type",
+	];
+	// ID name of input at question form
+	const inputIdName = [
+		"#question-title",
+		"#answer",
+		"#type",
+		"#option-a",
+		"#option-b",
+		"#option-c",
+		"#option-d",
+		"#option-e",
+	];
 	// if code has been sended
-	if (code) {
+	if (code && page == "admin_exam_view") {
 		// Get current exam
 		$.ajax({
 			url: `${baseURL}/admin/get_current_exam`,
 			method: "POST",
 			data: { code: code },
 			dataType: "JSON",
-			success: function (data) {
+			success: function (exam) {
 				// Change name of table title
-				$(".table-title").text(`Questions Table : ${data.title}`);
+				$(".table-title").text(`Questions Table : ${exam.title}`);
 
 				// Show questions table
 				$("#questions-table").DataTable({
@@ -21,7 +41,7 @@ jQuery(function () {
 					ajax: {
 						url: `${baseURL}/admin/fetch_all_questions`,
 						type: "POST",
-						data: { id: data.id },
+						data: { id: exam.id },
 						error: function (err) {
 							console.log(err);
 						},
@@ -43,7 +63,7 @@ jQuery(function () {
 					$.ajax({
 						url: `${baseURL}/admin/is_allowed_add_question`,
 						method: "POST",
-						data: { id: data.id },
+						data: { id: exam.id },
 						dataType: "JSON",
 						success: function (allowed) {
 							if (allowed) {
@@ -57,25 +77,19 @@ jQuery(function () {
 								$("#question-form")[0].reset();
 								// display modal dialog
 								$("#questionModal").modal("show");
-								// change invalid feedback text
-								$(".invalid-question").text("");
-								$(".invalid-option-a").text("");
-								$(".invalid-option-b").text("");
-								$(".invalid-option-c").text("");
-								$(".invalid-option-d").text("");
-								$(".invalid-option-e").text("");
-								$(".invalid-answer").text("");
-								$(".invalid-type").text("");
 								// set value exam-id
-								$("#exam-id").val(data.id);
+								$("#exam-id").val(exam.id);
 								// set value question-id
 								$("#question-id").val(null);
+								// change invalid feedback text
+								inputClassName.forEach((element) => {
+									$(element).text("");
+								});
 							} else {
 								Swal.fire({
 									title: "Can't Add Questions",
 									icon: "error",
-									text:
-										"The questions for this exam are full.",
+									text: `The questions for this exam are full or this exam has been started.`,
 									confirmButtonColor: "#52616B",
 									confirmButtonText: "Ok, got it!",
 									background: "#ffffff",
@@ -94,8 +108,7 @@ jQuery(function () {
 						Swal.fire({
 							title: "Unable To Edit",
 							icon: "error",
-							text:
-								"The exam of this question has been completed or is on progress.",
+							text: `The exam of this question has been completed or is on progress.`,
 							confirmButtonColor: "#52616B",
 							confirmButtonText: "Ok, got it!",
 							background: "#ffffff",
@@ -109,15 +122,11 @@ jQuery(function () {
 							data: { id: id },
 							dataType: "JSON",
 							success: function (result) {
+								let i = 0;
 								// fill input with existing data
-								$("#question-title").val(result.questionTitle);
-								$("#option-a").val(result.optionA);
-								$("#option-b").val(result.optionB);
-								$("#option-c").val(result.optionC);
-								$("#option-d").val(result.optionD);
-								$("#option-e").val(result.optionE);
-								$("#answer").val(result.answer);
-								$("#type").val(result.type);
+								for (const key in result) {
+									$(inputIdName[i++]).val(result[key]);
+								}
 								// change modal title
 								$(".modal-title").text("Edit Question");
 								// change text at button submit
@@ -126,19 +135,14 @@ jQuery(function () {
 								$("#action").val("edit");
 								// show modal
 								$("#questionModal").modal("show");
-								// change invalid feedback text
-								$(".invalid-question").text("");
-								$(".invalid-option-a").text("");
-								$(".invalid-option-b").text("");
-								$(".invalid-option-c").text("");
-								$(".invalid-option-d").text("");
-								$(".invalid-option-e").text("");
-								$(".invalid-answer").text("");
-								$(".invalid-type").text("");
 								// set value input named exam-id
 								$("#exam-id").val(null);
 								// set value input named question-id
 								$("#question-id").val(id);
+								// change invalid feedback text
+								inputClassName.forEach((element) => {
+									$(element).text("");
+								});
 							},
 							error: function (err) {
 								console.log(err);
@@ -167,27 +171,15 @@ jQuery(function () {
 							$("#question-submit").attr("disabled", false);
 
 							if (result.error == "yes") {
+								let i = 0;
 								// change invalid feedback text
-								$(".invalid-type").text(result.invalidType);
-								$(".invalid-answer").text(result.invalidAnswer);
-								$(".invalid-question").text(
-									result.invalidQuestion
-								);
-								$(".invalid-option-a").text(
-									result.invalidOptionA
-								);
-								$(".invalid-option-b").text(
-									result.invalidOptionB
-								);
-								$(".invalid-option-c").text(
-									result.invalidOptionC
-								);
-								$(".invalid-option-d").text(
-									result.invalidOptionD
-								);
-								$(".invalid-option-e").text(
-									result.invalidOptionE
-								);
+								for (const key in result) {
+									$(inputClassName[i++]).text(result[key]);
+
+									if (i == 8) {
+										break;
+									}
+								}
 
 								// change color border input to red if validation has error
 								if (result.invalidQuestion == "") {
@@ -321,6 +313,8 @@ jQuery(function () {
 
 				// When clicking cancel button at question form, then
 				$("#question-cancel-submit").on("click", function () {
+					// change name of file upload label
+					$(".label-filename").text("Choose File");
 					// reset invalid input border color
 					$(".invalid-question")
 						.prev("textarea")
@@ -352,8 +346,7 @@ jQuery(function () {
 						Swal.fire({
 							title: "Unable To Delete",
 							icon: "error",
-							text:
-								"The exam of this question has been completed or is on progress.",
+							text: `The exam of this question has been completed or is on progress.`,
 							confirmButtonColor: "#52616B",
 							confirmButtonText: "Ok, got it!",
 							background: "#ffffff",
@@ -361,7 +354,11 @@ jQuery(function () {
 					} else {
 						Swal.fire({
 							title: "Delete This question?",
-							text: "Deleted data cannot be restored.",
+							html: `
+								<span class="text-danger">
+									Deleted data cannot be restored.
+								</span>
+							`,
 							icon: "question",
 							showCancelButton: true,
 							confirmButtonColor: "#5A5C69",
@@ -398,6 +395,110 @@ jQuery(function () {
 							}
 						});
 					}
+				});
+
+				// Delete question image
+				$(document).on("click", "#btn-quest-img-del", function () {
+					if ($(this).data("editable")) {
+						Swal.fire({
+							title: "Unable To Delete File",
+							icon: "error",
+							text: `The exam of this question has been completed or is on progress.`,
+							confirmButtonColor: "#52616B",
+							confirmButtonText: "Ok, got it!",
+							background: "#ffffff",
+						});
+					} else {
+						Swal.fire({
+							title: "Delete This Image?",
+							html: `
+								<span class="text-danger">
+									This action cannot be restored.
+								</span>
+							`,
+							icon: "question",
+							showCancelButton: true,
+							confirmButtonColor: "#5A5C69",
+							cancelButtonColor: "#858796",
+							confirmButtonText: "Confirm",
+							cancelButtonText: "Cancel",
+						}).then((result) => {
+							if (result.isConfirmed) {
+								const id = $(this).data("id");
+
+								$.ajax({
+									url: `${baseURL}/admin/delete_question_image`,
+									method: "POST",
+									data: { id: id },
+									success: function (result) {
+										// success alert message for deleted data
+										Swal.fire({
+											title: "Deleted",
+											icon: "success",
+											text: result,
+											confirmButtonColor: "#52616B",
+											confirmButtonText: "Ok, got it!",
+											background: "#ffffff",
+										});
+										// reload DataTable
+										$("#questions-table")
+											.DataTable()
+											.ajax.reload();
+									},
+									error: function (err) {
+										console.log(err);
+									},
+								});
+							}
+						});
+					}
+				});
+
+				// Lock exam
+				$("#lock-exam").on("click", function () {
+					Swal.fire({
+						title: "Lock This Exam?",
+						html: `
+							<span class="text-danger">
+								Mengunci exam berarti anda memperbolehkan user untuk mendaftar
+								pada exam ini. Setelah mengunci, anda tidak dapat menambah maupun
+								menghapus pertanyaan. Aksi ini tidak dapat dikembalikan.
+							</span>
+						`,
+						icon: "question",
+						showCancelButton: true,
+						confirmButtonColor: "#5A5C69",
+						cancelButtonColor: "#858796",
+						confirmButtonText: "Confirm",
+						cancelButtonText: "Cancel",
+					}).then((result) => {
+						if (result.isConfirmed) {
+							$.ajax({
+								url: `${baseURL}/admin/lock_exam`,
+								method: "POST",
+								data: { id: exam.id, action: "lock_exam" },
+								success: function (result) {
+									Swal.fire({
+										title: "Success",
+										icon: "success",
+										text: result,
+										confirmButtonColor: "#52616B",
+										confirmButtonText: "Ok, got it!",
+										background: "#ffffff",
+										allowOutsideClick: false,
+										allowEscapeKey: false,
+									}).then((result) => {
+										if (result.isConfirmed) {
+											location.reload();
+										}
+									});
+								},
+								error: function (err) {
+									console.log(err);
+								},
+							});
+						}
+					});
 				});
 			},
 			error: function (err) {
