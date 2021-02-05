@@ -9,7 +9,7 @@ $("#schedule").datetimepicker({
 	startDate: date,
 	format: "Y-m-d H:i:s",
 	lang: "id",
-	step: 15,
+	step: 5,
 	autoClose: true,
 	onShow: function (_) {
 		this.setOptions({
@@ -19,7 +19,7 @@ $("#schedule").datetimepicker({
 });
 
 jQuery(function () {
-	// Show Exams Table
+	// Show exams table
 	$("#exams-table").DataTable({
 		serverSide: true,
 		processing: true,
@@ -40,10 +40,18 @@ jQuery(function () {
 				targets: [5],
 				orderable: false,
 			},
+			{
+				targets: [6],
+				orderable: false,
+			},
+			{
+				targets: [7],
+				orderable: false,
+			},
 		],
 	});
 
-	// Create Examination
+	// Create examination
 	$("#create-exam").on("click", function () {
 		// change modal title
 		$(".modal-title").text("Create New Exam");
@@ -68,7 +76,7 @@ jQuery(function () {
 		$("#exam-id").val(null);
 	});
 
-	// Edit Examination
+	// Edit examination
 	$(document).on("click", "#btn-exam-edit", function () {
 		if ($(this).data("editable")) {
 			Swal.fire({
@@ -124,7 +132,7 @@ jQuery(function () {
 		}
 	});
 
-	// When clicking submit button at exam form, then
+	// When clicking submit button at exam form
 	$("#exam-form").on("submit", function (e) {
 		e.preventDefault();
 
@@ -198,66 +206,115 @@ jQuery(function () {
 		});
 	});
 
-	// When clicking cancel button at exam form, then
+	// When clicking cancel button at exam form
 	$("#exam-cancel-submit").on("click", function () {
 		// reset invalid input border color
 		$(".invalid-title").prev("input").removeClass("is-invalid");
 		$(".invalid-schedule").prev("input").removeClass("is-invalid");
 	});
 
-	// Delete Examination
+	// Delete examination
 	$(document).on("click", "#btn-exam-delete", function () {
-		if ($(this).data("editable")) {
-			Swal.fire({
-				title: "Unable To Delete",
-				icon: "error",
-				text: "This exam has been completed or is on progress.",
-				confirmButtonColor: "#52616B",
-				confirmButtonText: "Ok, got it!",
-				background: "#ffffff",
-			});
-		} else {
-			Swal.fire({
-				title: "Delete This Exam?",
-				html: `
-					<span class="text-danger">
-						There may be question(s) that have been made in this exam.
-						If this exam is deleted, the question(s) is also deleted.
-					</span>
-				`,
-				icon: "question",
-				showCancelButton: true,
-				confirmButtonColor: "#5A5C69",
-				cancelButtonColor: "#858796",
-				confirmButtonText: "Confirm",
-				cancelButtonText: "Cancel",
-			}).then((result) => {
-				if (result.isConfirmed) {
-					const id = $(this).data("id");
+		Swal.fire({
+			title: "Delete This Exam?",
+			html: `
+				<span class="text-danger">
+					There may be question(s) that have been made in this exam.
+					If this exam is deleted, the question(s) is also deleted.
+				</span>
+			`,
+			icon: "question",
+			showCancelButton: true,
+			confirmButtonColor: "#5A5C69",
+			cancelButtonColor: "#858796",
+			confirmButtonText: "Confirm",
+			cancelButtonText: "Cancel",
+		}).then((result) => {
+			if (result.isConfirmed) {
+				const id = $(this).data("id");
 
-					$.ajax({
-						url: `${baseURL}/admin/exam_delete`,
-						method: "POST",
-						data: { id: id },
-						success: function (data) {
-							// success alert message for deleted data
-							Swal.fire({
-								title: "Deleted",
-								icon: "success",
-								text: data,
-								confirmButtonColor: "#52616B",
-								confirmButtonText: "Ok, got it!",
-								background: "#ffffff",
-							});
-							// reload DataTable
-							$("#exams-table").DataTable().ajax.reload();
-						},
-						error: function (err) {
-							console.log(err);
-						},
-					});
-				}
-			});
-		}
+				$.ajax({
+					url: `${baseURL}/admin/exam_delete`,
+					method: "POST",
+					data: { id: id },
+					success: function (data) {
+						// success alert message for deleted data
+						Swal.fire({
+							title: "Deleted",
+							icon: "success",
+							text: data,
+							confirmButtonColor: "#52616B",
+							confirmButtonText: "Ok, got it!",
+							background: "#ffffff",
+						});
+						// reload DataTable
+						$("#exams-table").DataTable().ajax.reload();
+					},
+					error: function (err) {
+						console.log(err);
+					},
+				});
+			}
+		});
+	});
+
+	// Download answer topic (admin side)
+	$(document).on("click", "#admin-answer-topic", function () {
+		const id = $(this).data("id");
+
+		$.ajax({
+			url: `${baseURL}/admin/download_answer_topic`,
+			method: "POST",
+			data: { id: id },
+			success: function (_) {
+				console.log("success");
+			},
+			error: function (err) {
+				console.log(err);
+			},
+		});
+	});
+
+	// Delete answer topic
+	$(document).on("click", "#delete-answer-topic", function () {
+		Swal.fire({
+			title: "Delete This File?",
+			html: `
+				<span class="text-danger">
+					This action cannot be restored.
+				</span>
+			`,
+			icon: "question",
+			showCancelButton: true,
+			confirmButtonColor: "#5A5C69",
+			cancelButtonColor: "#858796",
+			confirmButtonText: "Confirm",
+			cancelButtonText: "Cancel",
+		}).then((result) => {
+			if (result.isConfirmed) {
+				const id = $(this).data("id");
+
+				$.ajax({
+					url: `${baseURL}/admin/delete_answer_topic`,
+					method: "POST",
+					data: { id: id },
+					success: function (result) {
+						Swal.fire({
+							title: "Deleted",
+							icon: "success",
+							text: result,
+							confirmButtonColor: "#52616B",
+							confirmButtonText: "Ok, got it!",
+							background: "#ffffff",
+						});
+
+						$("#exams-table").DataTable().ajax.reload();
+					},
+					error: function (err) {
+						console.log(err);
+					},
+				});
+			}
+		});
 	});
 });

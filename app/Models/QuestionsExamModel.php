@@ -24,23 +24,18 @@ class QuestionsExamModel extends Model
     public function rowResult($column)
     {
         $row_result = function ($row) use ($column) {
-            // instance exam model class
-            $this->examsModel = new ExamsModel();
-            // determine question can be edited or not
-            $editable = $this->examsModel->isExamStarted($row["exam_id"]) ? 'disable' : null;
-
             if ($column == 'image') {
                 if (empty($row[$column])) {
                     return '
-                        <form action="' . base_url('admin/attempt_question_image/' . $row['id']) . '" method="POST" enctype="multipart/form-data">
+                        <form action="' . base_url('admin/upload_question_image/' . $row['id']) . '" method="POST" enctype="multipart/form-data">
                             <div class="d-flex flex-column justify-content-center img-container">
                                 <div class="form-upload mb-2">
                                     <input type="file" id="image-' . $row['id'] . '" name="question_image">
                                     <label for="image-' . $row['id'] . '" class="btn m-0 p-0">
-                                        <i class="fas fa-upload fa-2x" style="color: #36B9CC;"></i>
+                                        <i class="fas fa-upload fa-2x" style="color: #4E73DF;"></i>
                                     </label>
                                 </div>
-                                <button type="submit" class="btn btn-sm btn-info btn-icon-action badge py-1 px-2">Upload</button>
+                                <button type="submit" class="btn btn-sm btn-primary btn-block btn-icon-action badge py-1 px-2">Upload</button>
                             </div>
                         </form>
                         ';
@@ -51,7 +46,7 @@ class QuestionsExamModel extends Model
                         <div class="mb-2">
                             <img class="img-thumbnail" id="question-img" src="' . base_url("img/exam/" . $row[$column]) . '" alt="' . $row[$column] . '" data-action="zoom">
                         </div>
-                        <button type="button" class="btn btn-sm btn-info btn-icon-action badge py-1 px-2" id="btn-quest-img-del" data-id="' . $row['id'] . '" data-editable="' . $editable . '">Delete</button>
+                        <button type="button" class="btn btn-sm btn-primary btn-block btn-icon-action badge py-1 px-2" id="btn-quest-img-del" data-id="' . $row['id'] . '">Delete</button>
                     </div>
                     ';
             }
@@ -73,16 +68,16 @@ class QuestionsExamModel extends Model
             // determine question can be deleted or not
             $deletable = $exam["status"] == $this->examsModel->listStatus()[1] ? "disabled" : null;
             // determine question can be edited or not
-            $editable = $this->examsModel->isExamStarted($row["exam_id"]) ? "disable" : null;
+            $editable = $this->examsModel->isExamStarted($row["exam_id"]) ? "disabled" : null;
 
             return '
-                <button type="button" class="btn btn-sm btn-warning btn-icon-action mb-1" id="btn-question-edit" data-id="' . $row["id"] . '" title="edit" data-editable="' . $editable . '">
+                <button type="button" class="btn btn-sm btn-warning btn-icon-action mb-1" id="btn-question-edit" data-id="' . $row["id"] . '" data-editable="' . $editable . '">
                     <span class="icon text-white-50">
                         <i class="fas fa-edit"></i>
                     </span>
                 </button>
                 &nbsp;
-                <button type="button" class="btn btn-sm btn-danger btn-icon-action mb-1" id="btn-question-delete" data-id="' . $row["id"] . '" title="delete" data-editable="' . $editable . '" ' . $deletable . '>
+                <button type="button" class="btn btn-sm btn-danger btn-icon-action mb-1" id="btn-question-delete" data-id="' . $row["id"] . '" data-editable="' . $editable . '" data-deletable="' . $deletable . '">
                     <span class="icon text-white-50">
                         <i class="fas fa-trash mx-1"></i>
                     </span>

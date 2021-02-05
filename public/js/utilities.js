@@ -1,7 +1,7 @@
 // Set base URL
 const baseURL = "http://localhost:8080";
 
-// preview image when updating profile
+// Preview image when updating profile
 function showPreviewProfilePict() {
 	const profilePict = document.querySelector("#profile_pict");
 	const previewPict = document.querySelector("#preview-img");
@@ -17,7 +17,7 @@ function showPreviewProfilePict() {
 	};
 }
 
-// alert for edit, delete, and update.
+// Alert for edit, delete, and update.
 document.querySelectorAll(".flash-data").forEach((e) => {
 	if (e.dataset.flash) {
 		const flashData = e.dataset.flash;
@@ -35,7 +35,7 @@ document.querySelectorAll(".flash-data").forEach((e) => {
 	}
 });
 
-// set current value in slider (exam)
+// Set current value in slider (exam)
 $("#duration").on("input", function () {
 	$(".duration-value").text($("#duration").val());
 });

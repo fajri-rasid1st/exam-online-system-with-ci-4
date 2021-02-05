@@ -1,5 +1,5 @@
 jQuery(function () {
-	// class name of input at user form
+	// Class name of input at user form
 	const inputClassName = [
 		".invalid-username",
 		".invalid-email",
@@ -9,7 +9,7 @@ jQuery(function () {
 		".invalid-address",
 	];
 
-	// Show Users Table (admin)
+	// Show users table
 	$("#users-table").DataTable({
 		serverSide: true,
 		processing: true,
@@ -29,7 +29,7 @@ jQuery(function () {
 		],
 	});
 
-	// Edit User (admin)
+	// Edit user
 	$(document).on("click", "#btn-edit", function () {
 		const id = $(this).data("id");
 
@@ -68,7 +68,7 @@ jQuery(function () {
 		});
 	});
 
-	// When clicking submit button at edit form, then (admin)
+	// When clicking submit button at edit form
 	$("#edit-user-form").on("submit", function (e) {
 		e.preventDefault();
 
@@ -198,7 +198,7 @@ jQuery(function () {
 		});
 	});
 
-	// When clicking cancel button at edit form, then (admin)
+	// When clicking cancel button at edit form
 	$("#admin-cancel-submit").on("click", function () {
 		// reset invalid input border color
 		$(".invalid-username").prev("input").removeClass("is-invalid");
@@ -209,7 +209,7 @@ jQuery(function () {
 		$(".invalid-address").prev("input").removeClass("is-invalid");
 	});
 
-	// Delete User (admin)
+	// Delete user
 	$(document).on("click", "#btn-delete", function () {
 		Swal.fire({
 			title: "Delete This User?",

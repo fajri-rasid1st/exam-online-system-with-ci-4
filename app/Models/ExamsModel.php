@@ -21,6 +21,7 @@ class ExamsModel extends Model
         'score_per_empty_answer',
         'user_id',
         'status',
+        'answer_topic',
         'code',
     ];
 
@@ -51,7 +52,6 @@ class ExamsModel extends Model
         $row_result = function ($row) use ($column) {
             $status = $this->listStatus();
 
-            // check all possible status
             if ($column == 'status') {
                 if ($row[$column] == $status[0]) {
                     return "<div><span class='py-1 badge badge-secondary'>$row[$column]</span></div>";
@@ -62,6 +62,33 @@ class ExamsModel extends Model
                 } else {
                     return "<div><span class='py-1 badge badge-dark'>$row[$column]</span></div>";
                 }
+            } else if ($column == 'answer_topic') {
+                if (empty($row[$column])) {
+                    return '
+                        <form action="' . base_url('admin/upload_answer_topic/' . $row['id']) . '" method="POST" enctype="multipart/form-data">
+                            <div class="d-flex flex-column justify-content-center">
+                                <div class="form-upload mb-2">
+                                    <input type="file" id="answer-topic-' . $row['id'] . '" name="answer_topic">
+                                    <label for="answer-topic-' . $row['id'] . '" class="btn m-0 p-0">
+                                        <i class="fas fa-file-upload fa-2x" style="color: #4E73DF;"></i>
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-primary btn-block btn-icon-action badge py-1 px-2">Upload</button>
+                            </div>
+                        </form>
+                        ';
+                }
+
+                return '
+                    <div class="d-flex flex-column justify-content-center">
+                        <div class="text-center mb-2">
+                            <button type="button" id="admin-answer-topic" class="btn btn-sm btn-primary btn-icon-action" data-id="' . $row['id'] . '">
+                                    <i class="fas fa-file-pdf fa-2x"></i>
+                            </button>
+                        </div>
+                        <button type="button" id="delete-answer-topic" class="btn btn-sm btn-primary btn-block btn-icon-action badge py-1 px-2" data-id="' . $row['id'] . '">Delete</button>
+                    </div>
+                    ';
             }
 
             return $row[$column];
@@ -78,19 +105,19 @@ class ExamsModel extends Model
             $editable = $this->isExamStarted($row["id"]) ? 'disable' : null;
 
             return '
-                <a href="' . base_url('exam/' . $row["id"]) . '" role="button" class="btn btn-sm btn-info btn-icon-action mb-1" title="detail">
+                <a href="' . base_url('exam/' . $row["id"]) . '" role="button" class="btn btn-sm btn-info btn-icon-action mb-1">
                     <span class="icon text-white-50">
                         <i class="fas fa-info mx-1"></i>
                     </span>
                 </a>
                 &nbsp;
-                <button type="button" class="btn btn-sm btn-warning btn-icon-action mb-1" id="btn-exam-edit" data-id="' . $row["id"] . '" title="edit" data-editable="' . $editable . '">
+                <button type="button" class="btn btn-sm btn-warning btn-icon-action mb-1" id="btn-exam-edit" data-id="' . $row["id"] . '" data-editable="' . $editable . '">
                     <span class="icon text-white-50">
                         <i class="fas fa-edit"></i>
                     </span>
                 </button>
                 &nbsp;
-                <button type="button" class="btn btn-sm btn-danger btn-icon-action mb-1" id="btn-exam-delete" data-id="' . $row["id"] . '" title="delete" data-editable="' . $editable . '">
+                <button type="button" class="btn btn-sm btn-danger btn-icon-action mb-1" id="btn-exam-delete" data-id="' . $row["id"] . '">
                     <span class="icon text-white-50">
                         <i class="fas fa-trash mx-1"></i>
                     </span>
@@ -137,7 +164,35 @@ class ExamsModel extends Model
             $this->update($exam['id'], $data);
         }
 
-        return "Filled with " . $current_question . " of " . $total_question;
+        return "Filled " . $current_question . " of " . $total_question;
+    }
+
+    // function to return user enrolled button at exam table
+    public function userEnrolledButton()
+    {
+        $button = function ($row) {
+            return '
+                <a href="' . base_url('user_enroll?page=user_enroll&code=' . $row['code']) . '" role="button" class="btn btn-sm btn-info btn-block">
+                    Show Enroll
+                </a>
+                ';
+        };
+
+        return $button;
+    }
+
+    // function to return user enrolled button at exam table
+    public function usersScoreButton()
+    {
+        $button = function ($row) {
+            return '
+                <a href="' . base_url('admin_exam_result?page=admin_exam_result&code=' . $row['code']) . '" role="button" class="btn btn-sm btn-warning btn-block">
+                    Show Score
+                </a>
+                ';
+        };
+
+        return $button;
     }
 
     // function to return question button at exam table
@@ -147,7 +202,7 @@ class ExamsModel extends Model
             $btn_text = $this->changeExamStatus($row);
 
             return '
-                <a href="' . base_url('question?page=admin_exam_view&code=' . $row['code']) . '" class="btn btn-sm btn-primary">
+                <a href="' . base_url('question?page=admin_exam_view&code=' . $row['code']) . '" role="button" class="btn btn-sm btn-danger btn-block">
                     ' . $btn_text . '
                 </a>
                 ';

@@ -1,11 +1,11 @@
 jQuery(function () {
-	// enroll exam action
+	// Enroll exam action
 	$(document).on("click", "#btn-enroll", function () {
 		Swal.fire({
-			title: "Anda Yakin Ingin Mendaftar?",
+			title: "Yakin Ingin Mendaftar?",
 			html: `
 				<span class="text-danger">
-					Setelah terdaftar, anda tidak dapat membatalkan pendaftaran.
+					Jika exam telah dimulai, anda tidak dapat membatalkan pendaftaran.
 				</span>
 			`,
 			icon: "question",
@@ -67,7 +67,58 @@ jQuery(function () {
 		});
 	});
 
-	// show/hide user enrolled exam detail
+	// Cancel exam action
+	$(document).on("click", "#btn-cancel", function () {
+		Swal.fire({
+			title: "Batalkan Pendaftaran?",
+			html: `
+				<span class="text-danger">
+					Exam ini akan dihapus dari daftar list exam anda.
+				</span>
+				`,
+			icon: "question",
+			showCancelButton: true,
+			confirmButtonColor: "#5A5C69",
+			cancelButtonColor: "#858796",
+			confirmButtonText: "Confirm",
+			cancelButtonText: "Cancel",
+		}).then((result) => {
+			if (result.isConfirmed) {
+				const examId = $(this).data("examid");
+
+				$.ajax({
+					url: `${baseURL}/user/cancel_exam`,
+					method: "POST",
+					data: { exam_id: examId, action: "cancel_exam" },
+					beforeSend: function () {
+						$("#btn-cancel").attr("disabled", "disabled");
+						$("#btn-cancel").text("Tunggu Sebentar...");
+					},
+					success: function (result) {
+						$("#btn-cancel").text("Pembatalan Berhasil");
+
+						Swal.fire({
+							title: "Pembatalan Berhasil",
+							icon: "success",
+							text: result,
+							confirmButtonColor: "#52616B",
+							confirmButtonText: "Ok, got it!",
+							background: "#ffffff",
+						}).then((result) => {
+							if (result.isConfirmed) {
+								document.location.href = baseURL;
+							}
+						});
+					},
+					error: function (err) {
+						console.log(err);
+					},
+				});
+			}
+		});
+	});
+
+	// Toggle user enrolled exam detail
 	$(document).on("click", "#btn-detail-enroll-exam", function () {
 		const id = $(this).data("id");
 		const detail = $(`#detail-enroll-exam-${id}`);
@@ -80,7 +131,31 @@ jQuery(function () {
 		detail.slideToggle(400);
 	});
 
-	// function to load question
+	// Download answer topic (user side)
+	$(document).on("click", "#user-answer-topic", function () {
+		const examCode = $(this).data("code");
+
+		$.ajax({
+			url: `${baseURL}/user/download_answer_topic`,
+			method: "POST",
+			data: { exam_code: examCode },
+			success: function (result) {
+				Swal.fire({
+					title: "Download Failed",
+					icon: "error",
+					text: result,
+					confirmButtonColor: "#52616B",
+					confirmButtonText: "Ok, got it!",
+					background: "#ffffff",
+				});
+			},
+			error: function (err) {
+				console.log(err);
+			},
+		});
+	});
+
+	// Function to load question
 	function loadQuestion(examCode, questionId) {
 		$.ajax({
 			url: `${baseURL}/user/load_question`,
@@ -107,7 +182,7 @@ jQuery(function () {
 		});
 	}
 
-	// function for navigation question
+	// Function for navigation question
 	function questionNav(examCode) {
 		$.ajax({
 			url: `${baseURL}/user/question_nav`,
@@ -125,7 +200,7 @@ jQuery(function () {
 		});
 	}
 
-	// if code has been sended, this code will be execute when page in exam view
+	// If code has been sended, this code will be execute when page in exam view
 	if (code && page == "user_exam_view") {
 		// call load question function
 		loadQuestion(code, 0);
@@ -168,6 +243,12 @@ jQuery(function () {
 					answer_option: optionSelected.val(),
 					action: "user_answer",
 				},
+				success: function (_) {
+					console.log("success");
+				},
+				error: function (err) {
+					console.log(err);
+				},
 			});
 		});
 
@@ -194,7 +275,7 @@ jQuery(function () {
 					icon: "info",
 					text: `Terima kasih telah berpartisipasi pada Try Out kali ini.`,
 					confirmButtonColor: "#52616B",
-					confirmButtonText: "Kembali",
+					confirmButtonText: "Ok, got it!",
 					background: "#ffffff",
 					allowOutsideClick: false,
 					allowEscapeKey: false,

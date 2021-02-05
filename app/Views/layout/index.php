@@ -93,11 +93,13 @@
     <script src="<?= base_url(); ?>/js/user_management.js"></script>
     <script src="<?= base_url(); ?>/js/exam_management.js"></script>
     <script src="<?= base_url(); ?>/js/question_management.js"></script>
+    <script src="<?= base_url(); ?>/js/enroll_management.js"></script>
     <script src="<?= base_url(); ?>/js/utilities.js"></script>
     <script src="<?= base_url(); ?>/js/script.js"></script>
     <script>
         const code = "<?= isset($_GET['code']) ? $_GET['code'] : null ?>";
         const page = "<?= isset($_GET['page']) ? $_GET['page'] : null ?>";
+        const user = "<?= isset($_GET['user']) ? $_GET['user'] : null ?>";
     </script>
 </body>
 

@@ -1,8 +1,25 @@
 <?= $this->extend('layout/index'); ?>
 
 <?= $this->section('page-content'); ?>
+<div class="flash-data" data-flash='<?= session()->getFlashData("message"); ?>' data-title="Upload File Success" data-icon="success"></div>
+<div class="flash-data" data-flash='<?= session()->getFlashData("error"); ?>' data-title="Unable To Upload File" data-icon="error"></div>
+<div class="flash-data" data-flash='<?= session()->getFlashData("warning"); ?>' data-title="Exam Belum Terkunci" data-icon="warning"></div>
+<div class="flash-data" data-flash='<?= session()->getFlashData("uncompleted"); ?>' data-title="Exam Belum Selesai" data-icon="warning"></div>
 <div class="container-fluid">
     <h1 class="h2 mb-4 text-gray-700">Exam List</h1>
+    <div class="alert alert-danger mb-4">
+        <small class="d-block">
+            <sup>*</sup> Untuk menambahkan file kunci jawaban, silahkan klik icon 'upload'
+            lalu pilih file (pdf, doc, atau docx). Setelah itu, klik tombol 'upload'.
+        </small>
+        <small class="d-block">
+            <sup>*</sup> Setelah file diupload, anda bisa mengunduhnya dengan mengklik icon
+            pdf.
+        </small>
+        <small class="d-block">
+            <sup>*</sup> File kunci jawaban hanya bisa diisi satu per satu.
+        </small>
+    </div>
     <div class="row">
         <div class="col-lg-12">
             <div class="card shadow mb-4">
@@ -22,7 +39,10 @@
                                     <th scope="col" class="table-col">Title</th>
                                     <th scope="col" class="table-col">Date Schedule</th>
                                     <th scope="col" class="table-col">Status</th>
+                                    <th scope="col" class="table-col">Enrolled</th>
+                                    <th scope="col" class="table-col">Scores</th>
                                     <th scope="col" class="table-col">Question</th>
+                                    <th scope="col" class="table-col">Answer</th>
                                     <th scope="col" class="table-col">Action</th>
                                 </tr>
                             </thead>

@@ -59,8 +59,8 @@
                             </div>
                             <div class="exam-action">
                                 <?php if ($enrolled) : ?>
-                                    <button type="button" id="btn-enroll" class="btn btn-lg btn-<?= $color; ?>" disabled>
-                                        Anda Sudah Terdaftar!
+                                    <button type="button" id="btn-cancel" class="btn btn-lg btn-<?= $color; ?>" data-examid="<?= $exam['id']; ?>">
+                                        Batalkan Pendaftaran!
                                     </button>
                                 <?php else : ?>
                                     <button type="button" id="btn-enroll" class="btn btn-lg btn-<?= $color; ?>" data-userid="<?= user()->id; ?>" data-examid="<?= $exam['id']; ?>">

@@ -5,7 +5,7 @@
     <!-- breadcrumb nav -->
     <nav aria-label="breadcrumb" class="breadcrumb-result">
         <ol class="breadcrumb mb-4">
-            <li class="breadcrumb-item"><a href="<?= base_url(); ?>">Home</a></li>
+            <li class="breadcrumb-item"><a href="<?= base_url('exam_list'); ?>">Exam List</a></li>
             <li class="breadcrumb-item active" aria-current="page">Hasil : <?= $exam["title"]; ?></li>
         </ol>
     </nav>
@@ -118,7 +118,7 @@
 
                                                                     <?= $answer_info[0][$i]["total_question"] ?>
                                                                 <?php else : ?>
-                                                                    <?php array_push($answer_info[0], $data); ?>
+                                                                    <?php array_splice($answer_info[0], $i, 0, array($data)) ?>
 
                                                                     <?= 0; ?>
                                                                 <?php endif; ?>
@@ -139,7 +139,7 @@
 
                                                                     <?= $answer_info[1][$i]["total_question"] ?>
                                                                 <?php else : ?>
-                                                                    <?php array_push($answer_info[1], $data); ?>
+                                                                    <?php array_splice($answer_info[1], $i, 0, array($data)) ?>
 
                                                                     <?= 0; ?>
                                                                 <?php endif; ?>
@@ -160,7 +160,7 @@
 
                                                                     <?= $answer_info[2][$i]["total_question"] ?>
                                                                 <?php else : ?>
-                                                                    <?php array_push($answer_info[2], $data); ?>
+                                                                    <?php array_splice($answer_info[2], $i, 0, array($data)) ?>
 
                                                                     <?= 0; ?>
                                                                 <?php endif; ?>
@@ -196,10 +196,15 @@
                             <i class="fas fa-clipboard-list rotate-15 text-gray-300" style="font-size: 13rem;"></i>
                         </div>
 
-                        <div class="exam-action">
-                            <button type="button" class="btn btn-lg btn-dark" onclick="window.print();">
-                                Print Hasil PDF
-                                <i class="fas fa-print ml-2"></i>
+                        <div class="exam-action px-5">
+                            <button type="button" class="btn btn-dark btn-block" onclick="window.print();">
+                                <i class="fas fa-print mr-2"></i>
+                                Cetak Hasil
+                            </button>
+                            <div class="my-3"></div>
+                            <button type="button" id="user-answer-topic" class="btn btn-secondary btn-block" data-code="<?= $_GET['code']; ?>">
+                                <i class="fas fa-file-pdf mr-2"></i>
+                                Download Pembahasan
                             </button>
                         </div>
                     </div>

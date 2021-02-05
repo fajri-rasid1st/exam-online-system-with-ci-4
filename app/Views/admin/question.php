@@ -8,7 +8,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb mb-4">
             <li class="breadcrumb-item"><a href="<?= base_url('exam'); ?>">Exam List</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Questions</li>
+            <li class="breadcrumb-item active" aria-current="page">Question List</li>
         </ol>
     </nav>
     <h1 class="h2 mb-4 text-gray-700">
@@ -29,11 +29,11 @@
                 <div class="card-header d-flex justify-content-between align-items-center py-3">
                     <h5 class="table-title m-0"></h5>
                     <div class="question-action">
-                        <button type="button" class="btn btn-primary" id="create-question" <?= $disable_btn; ?>>
+                        <button type="button" class="btn btn-primary" id="create-question" data-disable="<?= $disable_btn; ?>">
                             <i class="fas fa-plus mr-1"></i>
                             Create Question
                         </button>
-                        <span class="px-1"></span>
+                        &nbsp;
                         <button type="button" class="btn btn-danger" id="lock-exam" <?= $disable_btn; ?>>
                             <i class="fas fa-lock mr-1"></i>
                             <?= $disable_btn ? "Exam Locked" : "Lock Exam"; ?>

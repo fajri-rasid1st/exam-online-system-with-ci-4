@@ -267,8 +267,59 @@ class User extends BaseController
                 ]);
             }
 
+            // create view exam result for this user
+            $this->db->query(
+                'CREATE VIEW result_exam_user_' . $exam["id"] . '_' . user()->id .
+                    ' AS
+                SELECT question_table.id AS id,
+                    question_table.exam_id AS exam_id,
+                    image,
+                    title,
+                    types,
+                    user_answer_option,
+                    options,
+                    scores
+                FROM question_table
+                        INNER JOIN user_exam_answer_table ueat on question_table.id = ueat.question_id
+                WHERE question_table.exam_id = ' . $exam["id"] .
+                    ' AND user_id = ' . user()->id .
+                    ' ORDER BY question_table.id'
+            );
+
             echo json_encode(true);
             return 1;
+        }
+    }
+
+    public function cancel_exam()
+    {
+        if ($this->request->getVar("action") == "cancel_exam") {
+            $exam_id = $this->request->getVar('exam_id');
+
+            $user_exam_enroll = $this->usersEnrollModel
+                ->where([
+                    'user_id' => user()->id,
+                    'exam_id' => $exam_id,
+                ])->first();
+
+            $this->usersEnrollModel->delete($user_exam_enroll['id']);
+
+            $user_exam_answers = $this->usersAnswerModel
+                ->where([
+                    'user_id' => user()->id,
+                    'exam_id' => $exam_id,
+                ])->findAll();
+
+            foreach ($user_exam_answers as $answer) {
+                $this->usersAnswerModel->delete($answer['id']);
+            }
+
+            // drop user exam result
+            $this->db->query(
+                'DROP VIEW IF EXISTS result_exam_user_' . $exam_id  . '_' . user()->id
+            );
+
+            echo 'Anda telah dikeluarkan dari exam ini.';
         }
     }
 
@@ -317,35 +368,30 @@ class User extends BaseController
             user()->id != $user_id
         ) return redirect()->back();
 
-        if ($this->request->getGet("code")) {
-            // sets the default timezone
-            date_default_timezone_set("Asia/Makassar");
-            // find exam by code
+        if ($this->request->getGet('code')) {
+            date_default_timezone_set('Asia/Makassar');
+
             $exam = $this->examsModel
-                ->where(["code" => $this->request->getGet("code")])
+                ->where(['code' => $this->request->getGet('code')])
                 ->first();
-            // is exam enrolled or not
+
+            if (!$exam) return redirect()->back();
+
             $is_enrolled = $this->usersEnrollModel
-                ->where(["user_id" => user()->id, "exam_id" => $exam["id"]])
+                ->where(['user_id' => user()->id, 'exam_id' => $exam['id']])
                 ->first();
-            // check if user is already enroll this exam
-            if (!$is_enrolled || $exam["status"] != $this->examsModel->listStatus()[2]) {
+
+            if (!$is_enrolled || $exam['status'] != $this->examsModel->listStatus()[2]) {
                 return redirect()->back();
             }
-            // determine end time of exam
+
             $exam_end_time = strtotime($exam['implement_date'] . '+' . $exam['duration'] . 'minutes');
-            // get remaining seconds
+
             $remaining_seconds = ($exam_end_time - time()) + 60;
-            // get exam enrolled
-            $exam_enrolled = $this->usersEnrollModel
-                ->where([
-                    'exam_id' => $exam['id'],
-                    'user_id' => user()->id
-                ])->first();
-            // set attendance status to Attend
+
             $data['attendance_status'] = 'Attend';
-            // update attendance status
-            $this->usersEnrollModel->update($exam_enrolled['id'], $data);
+
+            $this->usersEnrollModel->update($is_enrolled['id'], $data);
 
             $data = [
                 'title'               => $exam['title'],
@@ -549,15 +595,17 @@ class User extends BaseController
     public function exam_result($user_id = 0)
     {
         if (
-            !in_groups('user') ||
+            !in_groups("user") ||
             !is_numeric($user_id) ||
             user()->id != $user_id
         ) return redirect()->back();
 
         if ($this->request->getGet("code")) {
             $exam = $this->examsModel
-                ->where(['code' => $this->request->getGet("code")])
+                ->where(["code" => $this->request->getGet("code")])
                 ->first();
+
+            if (!$exam) return redirect()->back();
 
             $is_enrolled = $this->usersEnrollModel
                 ->where(["user_id" => user()->id, "exam_id" => $exam["id"]])
@@ -600,15 +648,38 @@ class User extends BaseController
             $exam_result = $query->getResultArray();
 
             $data = [
-                'title'       => "Exam Result",
+                'title'       => 'Exam Result',
                 'exam'        => $exam,
                 'exam_result' => $exam_result,
                 'answer_info' => $answers_info,
-                'attendance'  => $is_enrolled["attendance_status"],
+                'attendance'  => $is_enrolled['attendance_status'],
 
             ];
 
             return view('user/exam_result', $data);
+        }
+
+        return redirect()->back();
+    }
+
+    public function download_answer_topic()
+    {
+        $exam_code = $this->request->getVar('exam_code');
+
+        if ($exam_code) {
+            $exam = $this->examsModel->where(['code' => $exam_code])->first();
+
+            if (!in_groups('user') || !$exam) return redirect()->back();
+
+            if (!$exam['answer_topic']) return 'Belum ada pembahasan soal untuk exam ini.';
+
+            $title = str_replace(' ', '_', $exam['title']);
+
+            $title .= '.' . explode('.', $exam['answer_topic'])[1];
+
+            return $this->response
+                ->download('docs/' . $exam['answer_topic'], null)
+                ->setFileName('kunci_jawaban_' . $title);
         }
 
         return redirect()->back();

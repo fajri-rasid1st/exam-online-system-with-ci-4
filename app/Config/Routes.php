@@ -39,16 +39,25 @@ $routes->get('/', 'Home::index', ['filter' => 'role:admin,user']);
 $routes->get('/admin', 'Admin::index', ['filter' => 'role:admin']);
 $routes->get('/admin/index', 'Admin::index', ['filter' => 'role:admin']);
 
-$routes->get('/admin/(:num)', 'Admin::detail/$1', ['filter' => 'role:admin']);
+$routes->get('/admin/(:any)', 'Admin::detail/$1', ['filter' => 'role:admin']);
 
 $routes->get('/exam', 'Admin::exam', ['filter' => 'role:admin']);
 $routes->get('/admin/exam', 'Admin::exam', ['filter' => 'role:admin']);
 
-$routes->get('/exam/(:num)', 'Admin::exam_detail/$1', ['filter' => 'role:admin']);
-$routes->get('/admin/exam/(:num)', 'Admin::exam_detail/$1', ['filter' => 'role:admin']);
+$routes->get('/exam/(:any)', 'Admin::exam_detail/$1', ['filter' => 'role:admin']);
+$routes->get('/admin/exam/(:any)', 'Admin::exam_detail/$1', ['filter' => 'role:admin']);
 
 $routes->get('/question', 'Admin::question', ['filter' => 'role:admin']);
 $routes->get('/admin/question', 'Admin::question', ['filter' => 'role:admin']);
+
+$routes->get('/user_enroll', 'Admin::user_enroll', ['filter' => 'role:admin']);
+$routes->get('/admin/user_enroll', 'Admin::user_enroll', ['filter' => 'role:admin']);
+
+$routes->get('/user_exam_result', 'Admin::user_exam_result', ['filter' => 'role:admin']);
+$routes->get('/admin/user_exam_result', 'Admin::user_exam_result', ['filter' => 'role:admin']);
+
+$routes->get('/admin_exam_result', 'Admin::admin_exam_result', ['filter' => 'role:admin']);
+$routes->get('/admin/admin_exam_result', 'Admin::admin_exam_result', ['filter' => 'role:admin']);
 
 // User Side
 $routes->get('/user/(:num)', 'User::update/$1', ['filter' => 'role:admin,user']);
@@ -61,11 +70,11 @@ $routes->get('/user/exam_detail/(:num)/(:any)', 'User::exam_detail/$1/$2', ['fil
 $routes->get('/exam_list', 'User::exam_list', ['filter' => 'role:user']);
 $routes->get('/user/exam_list', 'User::exam_list', ['filter' => 'role:user']);
 
-$routes->get('/exam_view/(:num)', 'User::exam_view/$1', ['filter' => 'role:user']);
-$routes->get('/user/exam_view/(:num)', 'User::exam_view/$1', ['filter' => 'role:user']);
+$routes->get('/exam_view/(:any)', 'User::exam_view/$1', ['filter' => 'role:user']);
+$routes->get('/user/exam_view/(:any)', 'User::exam_view/$1', ['filter' => 'role:user']);
 
-$routes->get('/exam_result/(:num)', 'User::exam_result/$1', ['filter' => 'role:user']);
-$routes->get('/user/exam_result/(:num)', 'User::exam_result/$1', ['filter' => 'role:user']);
+$routes->get('/exam_result/(:any)', 'User::exam_result/$1', ['filter' => 'role:user']);
+$routes->get('/user/exam_result/(:any)', 'User::exam_result/$1', ['filter' => 'role:user']);
 
 
 

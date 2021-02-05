@@ -29,19 +29,19 @@ class UsersModel extends Model
     {
         $button = function ($row) {
             return '
-                <a href="' . base_url('admin/' . $row["id"]) . '" role="button" class="btn btn-sm btn-info btn-icon-action mb-1" title="detail">
+                <a href="' . base_url('admin/' . $row["id"]) . '" role="button" class="btn btn-sm btn-info btn-icon-action mb-1">
                     <span class="icon text-white-50">
                         <i class="fas fa-info mx-1"></i>
                     </span>
                 </a>
                 &nbsp;
-                <button type="button" class="btn btn-sm btn-warning btn-icon-action mb-1" id="btn-edit" data-id="' . $row["id"] . '" title="edit">
+                <button type="button" class="btn btn-sm btn-warning btn-icon-action mb-1" id="btn-edit" data-id="' . $row["id"] . '">
                     <span class="icon text-white-50">
                         <i class="fas fa-edit"></i>
                     </span>
                 </button>
                 &nbsp;
-                <button type="button" class="btn btn-sm btn-danger btn-icon-action mb-1" id="btn-delete" data-id="' . $row["id"] . '" title="delete">
+                <button type="button" class="btn btn-sm btn-danger btn-icon-action mb-1" id="btn-delete" data-id="' . $row["id"] . '">
                     <span class="icon text-white-50">
                         <i class="fas fa-trash mx-1"></i>
                     </span>
